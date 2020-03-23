@@ -52,8 +52,14 @@ class RepositoryFragment() : MvpAppCompatFragment(), RepositoryView, BackButtonL
         tv_forksCount_value_repository.text = forksCount.toString()
     }
 
+    private var repository: GithubRepository? = null
+
     @ProvidePresenter
-    fun providePresenter() = RepositoryPresenter(this, App.instance.getRouter())
+    fun providePresenter() : RepositoryPresenter{
+        val args = arguments
+        repository = args?.getParcelable(PUT_EXTRA)
+        return RepositoryPresenter(repository, App.instance.getRouter())
+    }
 
     override fun backClicked() = presenter.backClicked()
 }

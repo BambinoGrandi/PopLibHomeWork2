@@ -11,15 +11,10 @@ import ru.geekbrains.poplib.ui.fragments.RepositoryFragment
 import ru.terrakok.cicerone.Router
 
 @InjectViewState
-class RepositoryPresenter(val fragment: Fragment, val router: Router) : MvpPresenter<RepositoryView>() {
-
-    private val PUT_EXTRA = RepositoryFragment::class.java.name + "extra.repository"
-
-     private var repository: GithubRepository? = null
+class RepositoryPresenter(val repository: GithubRepository?, val router: Router) : MvpPresenter<RepositoryView>() {
 
     fun loadData(){
-         val args = fragment.arguments
-        repository = args?.getParcelable(PUT_EXTRA)
+
         viewState.setText(repository?.id, repository?.name, repository?.forksCount)
     }
 
