@@ -46,9 +46,15 @@ class RepositoryFragment() : MvpAppCompatFragment(), RepositoryView, BackButtonL
         tv_forksCount_value_repository.text
     }
 
-    override fun setText(id: String?, name: String?, forksCount: Int?) {
+    override fun setId(id: String?) {
         tv_name_value_repository.text = id
+    }
+
+    override fun setName(name: String?) {
         tv_name_value_repository.text = name
+    }
+
+    override fun setForksCounts(forksCount: Int?) {
         tv_forksCount_value_repository.text = forksCount.toString()
     }
 
