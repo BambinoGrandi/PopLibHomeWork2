@@ -1,7 +1,5 @@
 package ru.geekbrains.poplib.navigation
 
-import android.content.Context
-import androidx.fragment.app.Fragment
 import ru.geekbrains.poplib.mvp.model.entity.GithubRepository
 import ru.geekbrains.poplib.ui.fragments.RepositoriesFragment
 import ru.geekbrains.poplib.ui.fragments.RepositoryFragment
