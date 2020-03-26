@@ -1,5 +1,7 @@
 package ru.geekbrains.poplib.mvp.model.repo
 
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.Disposable
 import ru.geekbrains.poplib.mvp.model.entity.GithubRepository
 
 class GithubRepositoriesRepo {
@@ -11,5 +13,7 @@ class GithubRepositoriesRepo {
         GithubRepository("4", "name4", 400)
     )
 
-    fun getRepos() = repositories
+    fun getRepos() = Observable.fromCallable {
+        return@fromCallable repositories
+    }
 }
