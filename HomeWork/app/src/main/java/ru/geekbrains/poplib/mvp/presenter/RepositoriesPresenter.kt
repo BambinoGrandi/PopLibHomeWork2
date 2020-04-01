@@ -5,7 +5,9 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import ru.geekbrains.poplib.mvp.model.entity.GithubRepository
+import ru.geekbrains.poplib.mvp.model.entity.GithubUser
 import ru.geekbrains.poplib.mvp.model.repo.GithubRepositoriesRepo
+import ru.geekbrains.poplib.mvp.model.repo.GithubUsersRepo
 import ru.geekbrains.poplib.mvp.presenter.list.IRepositoryListPresenter
 import ru.geekbrains.poplib.mvp.view.RepositoriesView
 import ru.geekbrains.poplib.mvp.view.list.RepositoryItemView
@@ -17,7 +19,8 @@ import timber.log.Timber
 class RepositoriesPresenter(
     val repositoriesRepo: GithubRepositoriesRepo,
     val router: Router,
-    val mainThreadScheduler: Scheduler
+    val mainThreadScheduler: Scheduler,
+    val usersRepo: GithubUsersRepo
 ) : MvpPresenter<RepositoriesView>() {
 
     class RepositoryListPresenter : IRepositoryListPresenter {
@@ -37,8 +40,8 @@ class RepositoriesPresenter(
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         viewState.init()
-        loadRepos()
-
+//        loadRepos()
+        loadUser()
         repositoryListPresenter.itemClickListener = { itemView ->
             val repository = repositoryListPresenter.repositories[itemView.pos]
 
@@ -48,10 +51,26 @@ class RepositoriesPresenter(
         }
     }
 
-    fun loadRepos() {
-        repositoriesRepo.getRepos()
-            .observeOn(Schedulers.computation())
-            .subscribeOn(mainThreadScheduler)
+    fun loadUser() {
+        usersRepo.getUser("googlesamples")
+            .observeOn(mainThreadScheduler)
+
+            .subscribe({ user ->
+                viewState.loadUser(user.login)
+                viewState.loadAvatar(user.avatarUrl)
+                loadRepos(user.reposUrl)
+
+            }, {
+
+            })
+
+
+
+    }
+
+    fun loadRepos(url: String) {
+        repositoriesRepo.getRepos(url)
+            .observeOn(mainThreadScheduler)
             .subscribe(
                 { repos ->
                     repositoryListPresenter.repositories.clear()
