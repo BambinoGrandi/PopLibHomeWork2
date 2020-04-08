@@ -6,6 +6,7 @@ import dagger.Provides
 import ru.geekbrains.poplib.mvp.model.cache.image.IImageCache
 import ru.geekbrains.poplib.mvp.model.network.NetworkStatus
 import ru.geekbrains.poplib.ui.image.GlideImageLoader
+import javax.inject.Singleton
 
 //Реализовать модуль и внедрение всего, что касается картинок. Кэш тоже сюда.
 @Module(
@@ -16,6 +17,7 @@ import ru.geekbrains.poplib.ui.image.GlideImageLoader
 )
 class ImageModule {
 
+    @Singleton
     @Provides
     fun glideImageLoader(cache: IImageCache, networkStatus: NetworkStatus): GlideImageLoader {
         return GlideImageLoader(cache, networkStatus)
