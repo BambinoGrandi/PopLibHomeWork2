@@ -5,28 +5,23 @@ import moxy.MvpPresenter
 import ru.geekbrains.poplib.mvp.model.entity.GithubRepository
 import ru.geekbrains.poplib.mvp.view.RepositoryView
 import ru.terrakok.cicerone.Router
+import javax.inject.Inject
 
 @InjectViewState
-class RepositoryPresenter(val repository: GithubRepository?, val router: Router) : MvpPresenter<RepositoryView>() {
+class RepositoryPresenter(val githubRepository: GithubRepository) : MvpPresenter<RepositoryView>() {
 
-    fun loadData(){
-
-        viewState.setId(repository?.id)
-        viewState.setName(repository?.name)
-        viewState.setForksCounts(repository?.forksCount)
-    }
+    @Inject lateinit var router: Router
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         viewState.init()
-        loadData()
+        viewState.setId(githubRepository.id)
+        viewState.setTitle(githubRepository.name)
+        viewState.setForksCount(githubRepository.forksCount.toString())
     }
 
     fun backClicked(): Boolean {
         router.exit()
         return true
     }
-
-
 }
-

@@ -9,38 +9,42 @@ import ru.geekbrains.poplib.mvp.presenter.MainPresenter
 import ru.geekbrains.poplib.mvp.view.MainView
 import ru.geekbrains.poplib.ui.App
 import ru.geekbrains.poplib.ui.BackButtonListener
-import ru.geekbrains.poplib.ui.adapter.RepositoriesRVAdapter
+import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.android.support.SupportAppNavigator
+import javax.inject.Inject
 
 class MainActivity : MvpAppCompatActivity(), MainView {
+
+    @Inject lateinit var navigatorHolder: NavigatorHolder
 
     val navigator = SupportAppNavigator(this, R.id.container)
 
     @InjectPresenter
     lateinit var presenter: MainPresenter
 
-    var adapter: RepositoriesRVAdapter? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        App.instance.appComponent.inject(this)
     }
 
     @ProvidePresenter
-    fun providePresenter() = MainPresenter(App.instance.getRouter())
+    fun providePresenter() = MainPresenter().apply {
+        App.instance.appComponent.inject(this)
+    }
 
     override fun init() {
 
     }
 
     override fun onResumeFragments() {
-          super.onResumeFragments()
-        App.instance.getNavigatorHolder().setNavigator(navigator)
+        super.onResumeFragments()
+        navigatorHolder.setNavigator(navigator)
     }
 
     override fun onPause() {
         super.onPause()
-        App.instance.getNavigatorHolder().removeNavigator()
+        navigatorHolder.removeNavigator()
     }
 
     override fun onBackPressed() {
@@ -54,4 +58,3 @@ class MainActivity : MvpAppCompatActivity(), MainView {
 
 
 }
-

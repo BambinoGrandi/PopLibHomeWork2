@@ -1,24 +1,28 @@
 package ru.geekbrains.poplib.ui
 
 import android.app.Application
-import ru.terrakok.cicerone.Cicerone
-import ru.terrakok.cicerone.Router
+import ru.geekbrains.poplib.di.AppComponent
+import ru.geekbrains.poplib.di.DaggerAppComponent
+import ru.geekbrains.poplib.di.modules.AppModule
+import timber.log.Timber
 
 class App : Application() {
+
     companion object {
         lateinit var instance: App
     }
 
-    val cicerone: Cicerone<Router> by lazy {
-        Cicerone.create()
-    }
+    lateinit var appComponent: AppComponent
+        private set
 
     override fun onCreate() {
         super.onCreate()
         instance = this
+        Timber.plant(Timber.DebugTree())
+
+        appComponent = DaggerAppComponent.builder()
+            .appModule(AppModule(this))
+            .build()
     }
 
-
-    fun getNavigatorHolder() = cicerone.navigatorHolder
-    fun getRouter() = cicerone.router
 }

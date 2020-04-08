@@ -1,11 +1,9 @@
 package ru.geekbrains.poplib.mvp.presenter
 
 import io.reactivex.rxjava3.core.Scheduler
-import io.reactivex.rxjava3.schedulers.Schedulers
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import ru.geekbrains.poplib.mvp.model.entity.GithubRepository
-import ru.geekbrains.poplib.mvp.model.entity.GithubUser
 import ru.geekbrains.poplib.mvp.model.repo.GithubRepositoriesRepo
 import ru.geekbrains.poplib.mvp.model.repo.GithubUsersRepo
 import ru.geekbrains.poplib.mvp.presenter.list.IRepositoryListPresenter
@@ -14,14 +12,11 @@ import ru.geekbrains.poplib.mvp.view.list.RepositoryItemView
 import ru.geekbrains.poplib.navigation.Screens
 import ru.terrakok.cicerone.Router
 import timber.log.Timber
+import javax.inject.Inject
 
 @InjectViewState
-class RepositoriesPresenter(
-    val repositoriesRepo: GithubRepositoriesRepo,
-    val router: Router,
-    val mainThreadScheduler: Scheduler,
-    val usersRepo: GithubUsersRepo
-) : MvpPresenter<RepositoriesView>() {
+class RepositoriesPresenter(val mainThreadScheduler: Scheduler) :
+    MvpPresenter<RepositoriesView>() {
 
     class RepositoryListPresenter : IRepositoryListPresenter {
         val repositories = mutableListOf<GithubRepository>()
@@ -35,55 +30,45 @@ class RepositoriesPresenter(
         }
     }
 
+    @Inject lateinit var usersRepo: GithubUsersRepo
+    @Inject lateinit var repositoriesRepo: GithubRepositoriesRepo
+    @Inject lateinit var router: Router
+
     val repositoryListPresenter = RepositoryListPresenter()
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         viewState.init()
-//        loadRepos()
-        loadUser()
+        loadData()
+
         repositoryListPresenter.itemClickListener = { itemView ->
             val repository = repositoryListPresenter.repositories[itemView.pos]
-
-            //Практическое задание
             router.navigateTo(Screens.RepositoryScreen(repository))
-
         }
     }
 
-    fun loadUser() {
+    fun loadData() {
         usersRepo.getUser("googlesamples")
             .observeOn(mainThreadScheduler)
-
-            .subscribe({ user ->
-                viewState.loadUser(user.login)
+            .flatMap { user ->
+                viewState.setUsername(user.login)
                 viewState.loadAvatar(user.avatarUrl)
-                loadRepos(user.reposUrl)
-
-            }, {
-
-            })
-
-
-
-    }
-
-    fun loadRepos(url: String) {
-        repositoriesRepo.getRepos(url)
+                return@flatMap repositoriesRepo.getUserRepositories(user)
+            }
             .observeOn(mainThreadScheduler)
-            .subscribe(
-                { repos ->
-                    repositoryListPresenter.repositories.clear()
-                    repositoryListPresenter.repositories.addAll(repos)
-                    viewState.updateList()
-                },
-                { e ->
-                    Timber.e(e)
-                })
+            .subscribe({ repos ->
+                repositoryListPresenter.repositories.clear()
+                repositoryListPresenter.repositories.addAll(repos)
+                viewState.updateList()
+            }, {
+                Timber.e(it)
+            })
     }
 
     fun backClicked(): Boolean {
         router.exit()
         return true
     }
+
+
 }
